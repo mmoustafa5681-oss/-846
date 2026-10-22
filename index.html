@@ -425,9 +425,9 @@
     <!-- JAVASCRIPT CODE -->
     <script>
         // GOOGLE APPS SCRIPT WEB APP URL (UPDATED LINK)
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwpbaUWz2p1EYpKqS5Zv-RMVPtQd0P9zCJuJG3764y2UANt_N39IXiwEFQneKu-RSEH/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwadryYJ1C93DBjsiahJSD_DxD8Ya6t7ApKMU2U809lMpwN3ISFPdkm_H30Qlk1eyC8Tw/exec';
 
-        // INITIAL DEFAULT SCOOTER PRODUCTS
+        // INITIAL DEFAULT SCOOTER PRODUCTS (Fallback if sheet is empty)
         const INITIAL_PRODUCTS = [
             {
                 id: '1',
@@ -497,6 +497,21 @@
         let uploadedImagesBase64 = [];
         let activeImageIndices = {};
         let pendingDeleteId = null;
+
+        // FETCH DYNAMIC PRODUCTS FROM GOOGLE SHEETS
+        async function fetchProductsFromSheet() {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    PRODUCTS = data;
+                    saveProductsToStorage();
+                    renderProducts(getFilteredProducts());
+                }
+            } catch (err) {
+                console.log("استخدام المنتجات المخزنة محلياً");
+            }
+        }
 
         // AUTH & ADMIN FUNCTIONS
         function toggleAuthModal() {
@@ -1050,6 +1065,7 @@
             renderProducts(getFilteredProducts());
             updateCartUI();
             updateCalculator();
+            fetchProductsFromSheet(); // جلب المنتجات المحدثة من جوجل شيت فوراً
         };
     </script>
 </body>
